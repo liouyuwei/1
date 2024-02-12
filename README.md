@@ -1,2 +1,1 @@
-# 1
-1
+All the skills that can reset basic attack.
