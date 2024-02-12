@@ -1,49 +1,18 @@
-#include "pch.hpp"
-
-#include "spell.hpp"
-
-i16 Spell::level() { return MEMBER<i16>(0x28); }
-
-float Spell::readyTime() { return MEMBER<float>(0x30); }
-
-// SpellInput *Spell::spellInput() { return MEMBER<SpellInput *>(0x128); }
-//
-uptr Spell::spell_info() { return MEMBER<uptr>(0x130); }
-//
-// void SpellInput::SetCasterHandle(int32_t index) { *pMEMBER<int32_t>(0x10) = index; }
-//
-// void SpellInput::SetTargetHandle(int32_t index) { *pMEMBER<int32_t>(0x14) = index; }
-//
-// void SpellInput::SetStartPos(FLOAT3 pos) { *pMEMBER<FLOAT3>(0x18) = pos; }
-//
-// void SpellInput::SetEndPos(FLOAT3 pos) { *pMEMBER<FLOAT3>(0x24) = pos; }
-//
-// void SpellInput::SetClickedPos(FLOAT3 pos) { *pMEMBER<FLOAT3>(0x30) = pos; }
-//
-// void SpellInput::SetUnkPos(FLOAT3 pos) { *pMEMBER<FLOAT3>(0x3C) = pos; }
-
-i32 SpellCast::type() { return MEMBER<i32>(0x10); }
-
-i32 SpellCast::slot() { return MEMBER<i32>(0x11C); }
-
-std::string SpellCast::name() { return Read<RiotString16>(Read<uintptr_t>(this) + 0x28).str(); }
-
-bool SpellCast::is_attack() { return MEMBER<bool>(0x112) || MEMBER<bool>(0x113) || MEMBER<bool>(0x114); }
-
 bool SpellCast::is_attack_reset() {
   static constexpr auto reset_attack_spells = std::to_array<hash_type>(
-    { FNV("RengarQ")/*Ê¨×Ó¹·Q*/,FNV("VolibearQAttack")/*¹·ĞÜQA*/,FNV("VolibearQ")/*¹·ĞÜQ*/,FNV("ApheliosInfernumQ")/*Ó«ÑæQ*/,FNV("AsheQ")/*º®±ùQ*/,
-      FNV("CamilleQ")/*¿¨ÃÜ¶ûQ*/,FNV("DariusNoxianTacticsONH")/*ÅµÊÖW*/,FNV("JaxW")/*ÎäÆ÷W*/,FNV("KayleE")/*ÌìÊ¹E*/,FNV("LucianE")/*Â¬Îı°²E*/,FNV("SettQ")/*ÉªÌáQ*/,
-      FNV("SivirW")/*ÂÖ×ÓÂèW*/,FNV("VayneTumble")/*VN Q*/,FNV("KindredQ")/*Ç§çåQ*/,FNV("AatroxE")/*½£Ä§E*/,FNV("KatarinaE")/*¿¨ÌØE*/,FNV("FizzW")/*Ğ¡ÓãÈËW*/,
-      FNV("TalonQAttack")/*ÄĞµ¶½üQA*/,FNV("TalonQDashAttack")/*ÄĞµ¶Ô¶QA*/,FNV("XinZhaoQ")/*µÂ°îQ*/,FNV("GarenQ")/*µÂÂêQ*/,FNV("RivenTriCleave")/*ÈğÎÄQ*/,
-      FNV("IllaoiW")/*¶íÂåÒÀW*/,FNV("RenektonPreExecute")/*öùÓãW*/,FNV("SylasQ")/*ÈûÀ­Ë¹Q*/,FNV("SylasW")/*ÈûÀ­Ë¹W*/,FNV("SylasE")/*ÈûÀ­Ë¹E*/,
-      FNV("SylasE2")/*ÈûÀ­Ë¹E2*/,FNV("SylasR")/*ÈûÀ­Ë¹R*/,FNV("TrundleTrollSmash")/*¾ŞÄ§Q*/,FNV("BriarQ")/*Ç¾Ş±Q*/,FNV("Takedown")/*±ªÅ®ÊŞĞÎÌ¬Q*/,
-      FNV("OlafFrenziedStrikes")/*°ÂÀ­·òW*/,FNV("GwenE")/*¸ñÎÂE*/,FNV("ShyvanaDoubleAttackDragon")/*ÁúÅ®ÁúĞÎÌ¬Q*/,FNV("ShyvanaDoubleAttack")/*ÁúÅ®ÈËĞÎÌ¬Q*/,
-      FNV("YorickQ")/*¾òÄ¹ÕßQ*/,FNV("KSanteQ")/*ºÚ¸çQ*/,FNV("KSanteQ3")/*ºÚ¸çQ3*/,FNV("KSanteEAllyDash")/*ºÚ¸çE*/,FNV("CaitlynWSnare")/*Å®¾¯W±»²Èµ½*/,
-      FNV("ViE")/*Îµ E*/,FNV("ViegoW")/*ÆÆ°ÜÍõW*/,FNV("MonkeyKingDoubleAttack")/*ºï×ÓQ*/,FNV("CamilleQ2")/*¿¨ÃÜ¶ûQ2*/,FNV("Obduracy")/*Ê¯Í·ÈËW*/,
-      FNV("RellW_MountUp")/*ÜÇ¶ûÈËĞÎÌ¬W*/,FNV("NasusQ")/*¹·Í·Q*/,FNV("EkkoE")/*°¬¿ËE*/,FNV("NautilusPiercingGaze")/*Ì©Ì¹W*/,FNV("ZacQ")/*Ôú¿ËQ*/,
-      FNV("LeonaShieldOfDaybreak")/*Êï¹âQ*/,FNV("LeonaShieldOfDaybreakAttack")/*Êï¹âQA*/,FNV("Meditate")/*½£Ê¥W*/,FNV("FioraE")/*½£¼§E*/,FNV("VorpalSpikes")/*´ó³æ×ÓE*/,
-      FNV("NetherBlade")/*¿¨Èø¶¡W*/,FNV("KaisaR")/*¿¨É¯R*/,FNV("PowerFist")/*»úÆ÷ÈËE*/,FNV("EliseSpiderW")/*Ö©ÖëÊŞĞÎÌ¬W*/,FNV("ZeriE")/*ÔóÀöE*/,FNV("DrMundoE")/*ÃÉ¶àE*/, }
+    { FNV("RengarQ")/*ç‹®å­ç‹—Q*/,FNV("RengarQEmp")/*ç‹®å­ç‹—å¼ºåŒ–Q*/,FNV("VolibearQAttack")/*ç‹—ç†ŠQA*/,FNV("VolibearQ")/*ç‹—ç†ŠQ*/,FNV("ApheliosInfernumQ")/*è§ç„°Q*/,FNV("AsheQ")/*å¯’å†°Q*/,
+      FNV("CamilleQ")/*å¡å¯†å°”Q*/,FNV("DariusNoxianTacticsONH")/*è¯ºæ‰‹W*/,FNV("JaxW")/*æ­¦å™¨W*/,FNV("KayleE")/*å¤©ä½¿E*/,FNV("LucianE")/*å¢é”¡å®‰E*/,FNV("SettQ")/*ç‘ŸæQ*/,
+      FNV("SivirW")/*è½®å­å¦ˆW*/,FNV("VayneTumble")/*VN Q*/,FNV("KindredQ")/*åƒçQ*/,FNV("AatroxE")/*å‰‘é­”E*/,FNV("KatarinaE")/*å¡ç‰¹E*/,FNV("FizzW")/*å°é±¼äººW*/,
+      FNV("TalonQAttack")/*ç”·åˆ€è¿‘QA*/,FNV("TalonQDashAttack")/*ç”·åˆ€è¿œQA*/,FNV("XinZhaoQ")/*å¾·é‚¦Q*/,FNV("GarenQ")/*å¾·ç›Q*/,FNV("RivenTriCleave")/*ç‘æ–‡Q*/,
+      FNV("IllaoiW")/*ä¿„æ´›ä¾W*/,FNV("RenektonPreExecute")/*é³„é±¼W*/,FNV("SylasQ")/*å¡æ‹‰æ–¯Q*/,FNV("SylasW")/*å¡æ‹‰æ–¯W*/,FNV("SylasE")/*å¡æ‹‰æ–¯E*/,
+      FNV("SylasE2")/*å¡æ‹‰æ–¯E2*/,FNV("SylasR")/*å¡æ‹‰æ–¯R*/,FNV("TrundleTrollSmash")/*å·¨é­”Q*/,FNV("BriarQ")/*è”·è–‡Q*/,FNV("Takedown")/*è±¹å¥³å…½å½¢æ€Q*/,
+      FNV("OlafFrenziedStrikes")/*å¥¥æ‹‰å¤«W*/,FNV("GwenE")/*æ ¼æ¸©E*/,FNV("ShyvanaDoubleAttackDragon")/*é¾™å¥³é¾™å½¢æ€Q*/,FNV("ShyvanaDoubleAttack")/*é¾™å¥³äººå½¢æ€Q*/,
+      FNV("YorickQ")/*æ˜å¢“è€…Q*/,FNV("KSanteQ")/*é»‘å“¥Q*/,FNV("KSanteQ3")/*é»‘å“¥Q3*/,FNV("KSanteEAllyDash")/*é»‘å“¥E*/,FNV("CaitlynWSnare")/*å¥³è­¦Wè¢«è¸©åˆ°*/,
+      FNV("ViE")/*è”š E*/,FNV("ViegoW")/*ç ´è´¥ç‹W*/,FNV("MonkeyKingDoubleAttack")/*çŒ´å­Q*/,FNV("CamilleQ2")/*å¡å¯†å°”Q2*/,FNV("Obduracy")/*çŸ³å¤´äººW*/,
+      FNV("RellW_MountUp")/*èŠ®å°”äººå½¢æ€W*/,FNV("NasusQ")/*ç‹—å¤´Q*/,FNV("EkkoE")/*è‰¾å…‹E*/,FNV("NautilusPiercingGaze")/*æ³°å¦W*/,FNV("ZacQ")/*æ‰å…‹Q*/,
+      FNV("LeonaShieldOfDaybreak")/*æ›™å…‰Q*/,FNV("LeonaShieldOfDaybreakAttack")/*æ›™å…‰QA*/,FNV("Meditate")/*å‰‘åœ£W*/,FNV("FioraE")/*å‰‘å§¬E*/,FNV("VorpalSpikes")/*å¤§è™«å­E*/,
+      FNV("NetherBlade")/*å¡è¨ä¸W*/,FNV("KaisaR")/*å¡èR*/,FNV("PowerFist")/*æœºå™¨äººE*/,FNV("EliseSpiderW")/*èœ˜è››å…½å½¢æ€W*/,FNV("ZeriE")/*æ³½ä¸½E*/,FNV("DrMundoE")/*è’™å¤šE*/,
+      FNV("BlueCardLock")/*è“ç‰Œé”å®š*/,FNV("RedCardLock")/*çº¢ç‰Œé”å®š*/,FNV("GoldCardLock")/*é‡‘ç‰Œé”å®š*/,FNV("SejuaniE2")/*çŒªå¦¹E*/,FNV("3748Active")/*å·¨å‹ä¹å¤´è›‡*/,FNV("3152Active")/*æ¨æ¨æ£’*/ }
   );
   return std::ranges::contains(reset_attack_spells, FNV(name()));
 }
